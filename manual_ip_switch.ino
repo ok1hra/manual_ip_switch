@@ -5,12 +5,12 @@
 -------------------------------------------------
   http://RemoteQTH.com/ip-switch.php
   2016-12 by OK1HRA
-  
-  ___               _        ___ _____ _  _                
- | _ \___ _ __  ___| |_ ___ / _ \_   _| || |  __ ___ _ __  
- |   / -_) '  \/ _ \  _/ -_) (_) || | | __ |_/ _/ _ \ '  \ 
+
+  ___               _        ___ _____ _  _
+ | _ \___ _ __  ___| |_ ___ / _ \_   _| || |  __ ___ _ __
+ |   / -_) '  \/ _ \  _/ -_) (_) || | | __ |_/ _/ _ \ '  \
  |_|_\___|_|_|_\___/\__\___|\__\_\|_| |_||_(_)__\___/_|_|_|
-                                                           
+
 
 More features:
 - from 1 to 11 outputs, protect to only single out switch ON (antenna switching) - from rev 0.2 maybe off
@@ -20,7 +20,7 @@ More features:
   this allows one control unit for up to 11 relay board (176 relay outputs max)
 
 Changelog:
-2016-12 - 
+2018-04 - disable parking available
 2016-07 - new settings fullBits
         - pin 13 ON for TCP232 cfg pin
 
@@ -32,7 +32,7 @@ Settings:
 #define delayC   1000   //  ms  [Control]       time, are waiting for answers
                         //                      after timeout linked led OFF, and resend data
 #define delayR   10     //  sec [Relay]         determines the time, after which the relay parking
-#define parking  11     //  out [Relay]  1-11   parking output after timeout - optimally for grounded antenna
+// #define parking  11     //  out [Relay]  1-11   parking output after timeout / or disable - optimally for grounded antenna
 /////////////////////////////////////////////////////////////////////////////////
 /*
                      Arduino Ports / in-out layout
@@ -53,7 +53,7 @@ Settings:
    ---------                                      -------
    --->|                                                        - read inputs
       xxx -------------------->-------------------> xxx-->      - tx > rx and set outputs
-                                                     |          - 
+                                                     |          -
        f  <-------------------<--------------------  f          - verify (keep alive)
        |
        |                                                        - waiting for timeout or change input
@@ -91,8 +91,7 @@ int baud = 9600;
    /* 7  */ {0x55, 0xBA, 0xE3, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xA3 }, // 192.168.1.227
    /* 8  */ {0x55, 0xBA, 0xDD, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x9D }, // 192.168.1.221
    /* 9  */ {0x55, 0xBA, 0xDD, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x9D }, // 192.168.1.221
-   /* 10 */ //{0x55, 0xBA, 0xDD, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x9D }, // 192.168.1.221
-   /* 10 */ {0x55, 0xBA, 0x46, 0x8E, 0xF9, 0x57, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xC8, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x42 }, // 87.249.142.70:11220 -rc2
+   /* 10 */ {0x55, 0xBA, 0xDD, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x9D }, // 192.168.1.221
    /* 11 */ {0x55, 0xBA, 0xC9, 0x00, 0xA8, 0xC0, 0x2A, 0x20, 0xDD, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x03, 0x80, 0x25, 0x00, 0x03, 0x00, 0x01, 0x84, 0x00, 0xFF, 0xFF, 0xFF, 0x57 }, // 192.168.1.221 -rel
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           };
@@ -102,7 +101,7 @@ int baud = 9600;
       int nr=1;
       #if defined(controlCFG)
           byte CFGmsgR[4][31] = {  // NOT IMPLEMENTED YET!
-            // default ip config 55 BA C9 00 A8 C0 2A 20 DD 01 A8 C0 D4 2B 01 01 A8 C0 03 80 25 00 03 00 01 84 00 FF FF FF 57 
+            // default ip config 55 BA C9 00 A8 C0 2A 20 DD 01 A8 C0 D4 2B 01 01 A8 C0 03 80 25 00 03 00 01 84 00 FF FF FF 57
 
    /* 1  */ {0x55, 0xBA, 0xDD, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x9D }, // 192.168.1.221
    /* 2  */ {0x55, 0xBA, 0xDE, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0xDC, 0x01, 0xA8, 0xC0, 0xD4, 0x2B, 0x01, 0x01, 0xA8, 0xC0, 0x01, 0x80, 0x25, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0x9E }, // 192.168.1.222
@@ -148,7 +147,7 @@ void loop() {
                   previous = millis();             // set time mark
             }
         #endif
-        
+
         if (timeout>delayC){
               SendData(0);                     // data withOUT verify bit
               previous = millis();             // set time mark
@@ -207,19 +206,21 @@ void loop() {
               }
             #endif
         }
-        timeout = millis()-previous;                          // check timeout
-        if (timeout>(delayR*1000)){
-            #if defined(fullBits)
-              data1 = 0;
-              data1b = 16;
-            #else
-              data1 = parking;
-            #endif
-              data2 = 0;
-              data3 = 0;
-              WriteOUT();
-            previous = millis();                      // set time mark
-        }
+        #if defined(parking)
+          timeout = millis()-previous;                          // check timeout
+          if (timeout>(delayR*1000)){
+              #if defined(fullBits)
+                data1 = 0;
+                data1b = 16;
+              #else
+                data1 = parking;
+              #endif
+                data2 = 0;
+                data3 = 0;
+                WriteOUT();
+              previous = millis();                      // set time mark
+            }
+        #endif
   #endif
 }
 
@@ -273,7 +274,7 @@ void loop() {
             Serial.print(data3, DEC);
             Serial.print('\n');
       }
-      
+
 #else ////////////////////////////////////////////////////////////////////////////////////////// relay
       void WriteOUT(){
           #if defined(fullBits)
@@ -292,9 +293,9 @@ void loop() {
                     else if (data1 == 9){PORTD = B00000000; PORTB = B00100100;}
                     else if (data1 == 10){PORTD = B00000000; PORTB = B00101000;}
                     else if (data1 == 11){PORTD = B00000000; PORTB = B00110000;}
-          #endif                    
+          #endif
               //------------------------------------------------------------- 16 [1 bit] - data2
-              if (maskCut(0,data2) == 1){   // if bit0 =1 
+              if (maskCut(0,data2) == 1){   // if bit0 =1
                       data3 = data3 | (1<<4);
               }
               //------------------------------------------------------------- 12-15 [4 bit] - data3
@@ -314,16 +315,16 @@ int maskCut(int bitNR, int data){    // Test if the n-th bit is set
 #if defined(controlCFG)
     int CFG232(){
           if (baud != 9600) {Serial.begin(9600);}
-          for (int x=0; x<31; x++){ 
+          for (int x=0; x<31; x++){
             #if defined(CONTROL)
                 Serial.write(CFGmsgC[data1-1][x]);          // write config value from 'control table'
             #else
                 Serial.print(CFGmsgR[???????][x], HEX);     // write config value from 'relay table' - NOT implemeted yet! (choose cfg line)
             #endif
             //    Serial.print('|');
-          } 
+          }
           //Serial.println(' ');
-          
+
           if (baud != 9600) {Serial.begin(baud);}
     }
 #endif
